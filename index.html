@@ -676,6 +676,47 @@
                 description: 'Personalized LCHF Nutrition Chart & Meal Plan',
                 handler: function(response) {
                     data.payment_id = response.razorpay_payment_id;
+                    data.order_id = response.razorpay_order_id || '';
+                    data.event = 'payment.captured';
+                    data.amount = 14900;
+                    data.currency = 'INR';
+                    // Send directly to n8n
+                    fetch(N8N_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            event: 'payment.captured',
+                            payload: {
+                                payment: {
+                                    entity: {
+                                        id: data.payment_id,
+                                        order_id: data.order_id,
+                                        amount: 14900,
+                                        currency: 'INR',
+                                        email: data.customer_email,
+                                        contact: data.customer_phone,
+                                        method: 'upi',
+                                        notes: {
+                                            customer_name: data.customer_name,
+                                            customer_email: data.customer_email,
+                                            customer_phone: data.customer_phone,
+                                            age: data.age,
+                                            gender: data.gender,
+                                            height_cm: data.height_cm,
+                                            weight_kg: data.weight_kg,
+                                            target_weight_kg: data.target_weight_kg,
+                                            medical_conditions: data.medical_conditions,
+                                            food_preference: data.food_preference,
+                                            allergies: data.allergies,
+                                            food_dislikes: data.food_dislikes,
+                                            activity_level: data.activity_level,
+                                            goals: data.goals
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    }).catch(function() {});
                     showNutritionChart(data);
                 },
                 prefill: {
